@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_image_editor/gen/assets.gen.dart';
+import 'package:image/image.dart' as image_lib;
 
 class EditSnapScreen extends StatefulWidget {
   const EditSnapScreen({super.key, required this.imageBitmap});
@@ -13,6 +14,32 @@ class EditSnapScreen extends StatefulWidget {
 }
 
 class _EditSnapScreenState extends State<EditSnapScreen>{
+
+  late Uint8List _imageBitmap;
+
+  @override
+  void initState() {
+    super.initState();
+    _imageBitmap = widget.imageBitmap;
+  }
+
+  void _rotateImage() {
+    final image = image_lib.decodeImage(_imageBitmap);
+    if (image == null) return;
+    final rotateImage = image_lib.copyRotate(image, angle:90);
+    setState(() {
+      _imageBitmap = image_lib.encodeBmp(rotateImage);
+    });
+  }
+
+  void _flipImage() {
+    final image = image_lib.decodeImage(_imageBitmap);
+    if (image == null) return;
+    final flipImage = image_lib.copyFlip(image, direction: image_lib.FlipDirection.horizontal);
+    setState(() {
+      _imageBitmap = image_lib.encodeBmp(flipImage);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,16 +53,16 @@ class _EditSnapScreenState extends State<EditSnapScreen>{
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.memory(widget.imageBitmap),
+            Image.memory(_imageBitmap),
             IconButton(
-              onPressed: () {},
+              onPressed: () {_rotateImage();},
               icon:  Assets.rotateIcon.svg(
                 width: 24,
                 height: 24,
               ),
             ),
             IconButton(
-              onPressed: () {},
+              onPressed: () {_flipImage();},
               icon: Assets.flipIcon.svg(
                 width: 24,
                 height: 24,
